@@ -24,6 +24,7 @@ fn system_prompt(source: &str, target: &str) -> String {
 in natural, spoken {target}, as said in a meeting. \
 Keep proper names and technical terms. \
 Do not add explanations or comments: return only the translation. \
+If the input is already in {target}, return it unchanged. \
 If the input is noise or makes no sense, return an empty string."
     )
 }
@@ -648,6 +649,14 @@ mod tests {
         assert_eq!(msgs[1]["content"], "Hola");
         assert_eq!(msgs[2]["role"], "assistant");
         assert_eq!(msgs.last().unwrap()["content"], "Mañana seguimos");
+    }
+
+    #[test]
+    fn prompt_deja_tal_cual_lo_que_ya_esta_en_el_idioma_destino() {
+        let prompt = system_prompt("Spanish", "English");
+        assert!(prompt.contains("If the input is already in English, return it unchanged."));
+        let inverso = system_prompt("English", "Spanish");
+        assert!(inverso.contains("If the input is already in Spanish, return it unchanged."));
     }
 
     #[test]
